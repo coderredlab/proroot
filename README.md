@@ -106,6 +106,12 @@ libproroot.so -r <rootfs> -w /root --link2symlink /usr/local/bin/node server.js
 - **Chromium headless_shell 131** (Playwright)
 - **curl**, **wget**, **OpenSSL 3.0**
 
+## Source code
+
+The source is not public yet because I'm still stabilizing the implementation and don't want to publish something half-broken.
+
+For now I'm sharing binaries for testing and feedback while I validate compatibility across real workloads.
+
 ## License
 
 Proprietary. Free to use in your projects. Redistribution of modified binaries is not permitted.
