@@ -116,6 +116,8 @@ Recent app-process smoke coverage:
 - `git ls-remote https://github.com/git/git.git HEAD`
 - `npm install openclaw`
 - `openclaw --version` -> `OpenClaw 2026.4.9 (0512059)`
+- `npm install @openai/codex`
+- `codex --version` -> `codex-cli 0.118.0`
 - `npm install playwright`
 - `npx playwright install chromium`
 - Playwright Chromium navigation and screenshot of `https://www.naver.com`
