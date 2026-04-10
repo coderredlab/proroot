@@ -97,14 +97,28 @@ libproroot.so -r <rootfs> -w /root --link2symlink /usr/local/bin/node server.js
 | `PROROOT_TRAMPOLINE_PATH` | Path to bridge binary (auto-detected) |
 | `PROROOT_VERBOSE=1` | Debug logging |
 | `PROROOT_GUEST_EXE` | Guest path for /proc/self/exe emulation |
+| `PROROOT_TMP_DIR` | Writable directory for runtime config files (use app `filesDir` in Android app processes) |
 
 ## Tested with
 
-- **Node.js 24** + npm
+- **Node.js 22** + npm
 - **Python 3.12**
 - **Git 2.43**
-- **Chromium headless_shell 131** (Playwright)
+- **Chromium headless_shell 147** (Playwright)
 - **curl**, **wget**, **OpenSSL 3.0**
+
+Recent app-process smoke coverage:
+
+- NodeSource apt setup and `apt-get install -y nodejs`
+- `node --version` -> `v22.22.2`
+- `npm --version` -> `10.9.7`
+- `python3 --version` -> `Python 3.12.3`
+- `git ls-remote https://github.com/git/git.git HEAD`
+- `npm install openclaw`
+- `openclaw --version` -> `OpenClaw 2026.4.9 (0512059)`
+- `npm install playwright`
+- `npx playwright install chromium`
+- Playwright Chromium navigation and screenshot of `https://www.naver.com`
 
 ## Source code
 
