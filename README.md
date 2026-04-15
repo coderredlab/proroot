@@ -76,6 +76,8 @@ jniLibs/arm64-v8a/
 
 Download all 4 `.so` files from [Releases](../../releases) and place them in `jniLibs/arm64-v8a/`.
 
+Latest public binary release: **v1.0.12** — child-startup optimization follow-up, app baseline bootstrap validation, and no recurrence of `pthread_create: Invalid argument` during rerun smoke validation.
+
 ### Requirements
 
 - Android 8.0+ (API 26)
@@ -101,26 +103,39 @@ libproroot.so -r <rootfs> -w /root --link2symlink /usr/local/bin/node server.js
 
 ## Tested with
 
-- **Node.js 22** + npm
-- **Python 3.12**
-- **Git 2.43**
-- **Chromium headless_shell 147** (Playwright)
-- **curl**, **wget**, **OpenSSL 3.0**
+- **Node.js 22.22.2** + npm **10.9.7**
+- **Python 3.12.3**
+- **Git 2.43.0**
+- **Chromium / Playwright app-process smoke**
+- **XFCE 4 + TigerVNC** app-process GUI smoke
+- **curl**, **OpenSSL 3.0**
 
-Recent app-process smoke coverage:
+Latest validated app-process smoke coverage (`v1.0.12`):
 
-- NodeSource apt setup and `apt-get install -y nodejs`
+- app-private rootfs baseline bootstrap for `curl`, `git`, `python3`, `node`, and `npm`
 - `node --version` -> `v22.22.2`
 - `npm --version` -> `10.9.7`
 - `python3 --version` -> `Python 3.12.3`
-- `git ls-remote https://github.com/git/git.git HEAD`
+- `git --version` -> `git version 2.43.0`
+- repeated Node child-process smoke (`NODE_CHILD_OK`)
+- GUI package install smoke: `apt-get install -y xauth dbus-x11 tigervnc-standalone-server xfce4` (`GUI_INSTALL_OK`)
+- VNC/XFCE desktop startup smoke: write `/root/.vnc/xstartup`, start `vncserver :124`, and verify `xfce4-session` + `xfwm4` are alive (`GUI_VNC_SMOKE_OK`)
+- Playwright Chromium screenshot smoke: `npm install playwright`, `npx playwright install chromium`, navigate to `https://www.naver.com`, save a full-page screenshot (`PLAYWRIGHT_CHROMIUM_SCREENSHOT_OK`)
 - `npm install openclaw`
-- `openclaw --version` -> `OpenClaw 2026.4.9 (0512059)`
+- `openclaw --version` -> `OpenClaw 2026.4.14 (323493f)`
 - `npm install @openai/codex`
-- `codex --version` -> `codex-cli 0.118.0`
+- `codex --version` -> `codex-cli 0.120.0`
+- `npm install esbuild`
+- `esbuild --version` -> `0.28.0`
 - `npm install playwright`
 - `npx playwright install chromium`
 - Playwright Chromium navigation and screenshot of `https://www.naver.com`
+- static procfs smoke coverage (`PROC_SELF`, `PROC_PID`, `PROC_STATX_PRECISION`, `PROC_MOUNTS`, `PROC_THREAD_SELF`, `PROC_TASK_META`)
+
+Known non-blocking runtime noise during Android app-process smoke:
+
+- `exec linker failed ... Permission denied` can appear before fallback succeeds
+- GUI package install may emit systemd / D-Bus helper noise while still ending in `RESULT_EXIT=0`
 
 ## Source code
 
