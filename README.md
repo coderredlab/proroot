@@ -69,14 +69,14 @@ jniLibs/arm64-v8a/
 ├── libproroot.so           Launcher (NDK/bionic)
 ├── libproroot-runtime.so   LD_PRELOAD runtime (glibc)
 ├── libproroot-bridge.so    Child exec trampoline (NDK static)
-└── libldlinux.so           glibc dynamic linker (LGPL-2.1)
+└── libproroot-linker.so    Clean-room glibc-compatible dynamic linker
 ```
 
 ## Installation
 
 Download all 4 `.so` files from [Releases](../../releases) and place them in `jniLibs/arm64-v8a/`.
 
-Latest public binary release: **v1.0.12** — child-startup optimization follow-up, app baseline bootstrap validation, and no recurrence of `pthread_create: Invalid argument` during rerun smoke validation.
+Latest validated build: clean-room linker/runtime integration — full Android app-process smoke passes with Node.js, Python, npm, Playwright Chromium, XFCE/VNC, OpenClaw, Codex, esbuild, and static procfs coverage.
 
 ### Requirements
 
@@ -87,7 +87,22 @@ Latest public binary release: **v1.0.12** — child-startup optimization follow-
 ### Usage
 
 ```sh
-libproroot.so -r <rootfs> -w /root --link2symlink /usr/local/bin/node server.js
+libproroot.so -r <rootfs> -0 --link2symlink -w /root /bin/sh -c 'node server.js'
+```
+
+Recommended Android app-process setup:
+
+```sh
+PROROOT_LIB_PATH=/path/to/libproroot-runtime.so \
+PROROOT_TRAMPOLINE_PATH=/path/to/libproroot-bridge.so \
+PROROOT_LINKER_PATH=/path/to/libproroot-linker.so \
+PROROOT_TMP_DIR=/data/user/0/<package>/files \
+libproroot.so \
+  -r /data/user/0/<package>/files/rootfs \
+  -0 \
+  --link2symlink \
+  -w /root \
+  /bin/sh -c '<command>'
 ```
 
 ### Environment variables
@@ -95,7 +110,7 @@ libproroot.so -r <rootfs> -w /root --link2symlink /usr/local/bin/node server.js
 | Variable | Description |
 |----------|-------------|
 | `PROROOT_LIB_PATH` | Path to runtime .so (auto-detected) |
-| `PROROOT_LINKER_PATH` | Path to glibc ld.so (auto-detected) |
+| `PROROOT_LINKER_PATH` | Path to `libproroot-linker.so` (auto-detected) |
 | `PROROOT_TRAMPOLINE_PATH` | Path to bridge binary (auto-detected) |
 | `PROROOT_VERBOSE=1` | Debug logging |
 | `PROROOT_GUEST_EXE` | Guest path for /proc/self/exe emulation |
@@ -110,12 +125,12 @@ libproroot.so -r <rootfs> -w /root --link2symlink /usr/local/bin/node server.js
 - **XFCE 4 + TigerVNC** app-process GUI smoke
 - **curl**, **OpenSSL 3.0**
 
-Latest validated app-process smoke coverage (`v1.0.12`):
+Latest validated app-process smoke coverage:
 
 - app-private rootfs baseline bootstrap for `curl`, `git`, `python3`, `node`, and `npm`
 - `node --version` -> `v22.22.2`
 - `npm --version` -> `10.9.7`
-- `python3 --version` -> `Python 3.12.3`
+- `python3 --version`
 - `git --version` -> `git version 2.43.0`
 - repeated Node child-process smoke (`NODE_CHILD_OK`)
 - GUI package install smoke: `apt-get install -y xauth dbus-x11 tigervnc-standalone-server xfce4` (`GUI_INSTALL_OK`)
@@ -134,7 +149,7 @@ Latest validated app-process smoke coverage (`v1.0.12`):
 
 Known non-blocking runtime noise during Android app-process smoke:
 
-- `exec linker failed ... Permission denied` can appear before fallback succeeds
+- optional backend misses such as `libnss_db.so.2` can appear when the guest rootfs does not ship that optional NSS module
 - GUI package install may emit systemd / D-Bus helper noise while still ending in `RESULT_EXIT=0`
 
 ## Source code
@@ -146,5 +161,3 @@ For now I'm sharing binaries for testing and feedback while I validate compatibi
 ## License
 
 Proprietary. Free to use in your projects. Redistribution of modified binaries is not permitted.
-
-`libldlinux.so` is derived from GNU C Library and is licensed under [LGPL-2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html).
