@@ -76,7 +76,7 @@ jniLibs/arm64-v8a/
 
 Download all 4 `.so` files from [Releases](../../releases) and place them in `jniLibs/arm64-v8a/`.
 
-Latest validated build: clean-room linker/runtime integration — full Android app-process smoke passes with Node.js, Python, npm, Playwright Chromium, XFCE/VNC, OpenClaw, Codex, esbuild, and static procfs coverage.
+Latest validated build: clean-room linker/runtime integration with patched-syscall errno preservation and `/proc/1/cgroup` virtualization — full Android app-process smoke passes with Node.js, Python, npm, Playwright Chromium, XFCE/VNC, OpenClaw, Codex, esbuild, and static procfs coverage.
 
 ### Requirements
 
@@ -137,15 +137,24 @@ Latest validated app-process smoke coverage:
 - VNC/XFCE desktop startup smoke: write `/root/.vnc/xstartup`, start `vncserver :124`, and verify `xfce4-session` + `xfwm4` are alive (`GUI_VNC_SMOKE_OK`)
 - Playwright Chromium screenshot smoke: `npm install playwright`, `npx playwright install chromium`, navigate to `https://www.naver.com`, save a full-page screenshot (`PLAYWRIGHT_CHROMIUM_SCREENSHOT_OK`)
 - `npm install openclaw`
-- `openclaw --version` -> `OpenClaw 2026.4.14 (323493f)`
+- `openclaw --version` -> `OpenClaw 2026.4.24 (cbcfdf6)`
 - `npm install @openai/codex`
-- `codex --version` -> `codex-cli 0.120.0`
+- `codex --version` -> `codex-cli 0.125.0`
 - `npm install esbuild`
 - `esbuild --version` -> `0.28.0`
 - `npm install playwright`
 - `npx playwright install chromium`
 - Playwright Chromium navigation and screenshot of `https://www.naver.com`
 - static procfs smoke coverage (`PROC_SELF`, `PROC_PID`, `PROC_STATX_PRECISION`, `PROC_MOUNTS`, `PROC_THREAD_SELF`, `PROC_TASK_META`)
+
+Latest validated Termux clean-room full-smoke coverage:
+
+- `RUN_MEDIUM=1 RUN_HEAVY=1 RUN_PLAYWRIGHT=1 RUN_GUI=1 scripts/termux-full-smoke-cleanroom.sh` -> `ALL_PASS`
+- basic smoke: `true`, `cat /etc/hostname`, `ls /`, `date`, `bash`, `python3 --version`, and `id`
+- medium smoke: bootstrap, filesystem/tar, Node child process, Python `posix_spawn` file actions, and `tcsetpgrp`
+- heavy npm smoke: OpenClaw, Codex, and esbuild installs
+- Playwright Chromium screenshot smoke
+- GUI smoke: XFCE package install and TigerVNC desktop startup
 
 Known non-blocking runtime noise during Android app-process smoke:
 
