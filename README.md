@@ -76,7 +76,7 @@ jniLibs/arm64-v8a/
 
 Download all 4 `.so` files from [Releases](../../releases) and place them in `jniLibs/arm64-v8a/`.
 
-Latest validated build: clean-room linker/runtime hardening for Android app-process and Termux workloads. It preserves patched-syscall errno, virtualizes `/proc/1/cgroup`, masks guest MTE HWCAP exposure, avoids unsafe glibc malloc-state writes, and passes full smoke with Node.js, Python, npm, Playwright Chromium, XFCE/VNC, OpenClaw, Codex, esbuild, and static procfs coverage.
+Latest validated build: clean-room linker/runtime hardening for Android app-process and Termux workloads. It avoids exporting guest `LD_PRELOAD` into the Android host process, ships a clean-room linker with `PT_PHDR`, handles Android static-pie duplicate `argv[0]`, preserves patched-syscall errno, virtualizes `/proc/1/cgroup`, masks guest MTE HWCAP exposure, avoids unsafe glibc malloc-state writes, and passes full smoke with Node.js, Python, npm, Playwright Chromium, XFCE/VNC, OpenClaw, Codex, esbuild, and static procfs coverage.
 
 ### Requirements
 
@@ -127,8 +127,9 @@ libproroot.so \
 
 Latest validated app-process smoke coverage:
 
-- Samsung Galaxy Fold `SM-F966N`, Android SDK 36: `android-smoketest/build/smoke-results/20260426-181801-SM-F966N`, all stages `RESULT_EXIT=0`
-- Samsung Galaxy Flip `SM-F721N`, Android SDK 35: `android-smoketest/build/smoke-results/20260426-182238-SM_F721N`, all stages `RESULT_EXIT=0`
+- Samsung Galaxy Fold `SM-F966N`, Android 16 / SDK 36: `android-smoketest/build/smoke-results/20260426-230453-SM_F966N-after-fix`, all stages `RESULT_EXIT=0`
+- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `android-smoketest/build/smoke-results/20260426-233429-SM_F721N-after-fix`, all stages `RESULT_EXIT=0`
+- Lenovo Tab `TB373FU`, Android 15 / SDK 35: `android-smoketest/build/smoke-results/20260426-230700-TB373FU-after-fix`, all stages `RESULT_EXIT=0`
 
 - app-private rootfs baseline bootstrap for `curl`, `git`, `python3`, `node`, and `npm`
 - `node --version` -> `v22.22.2`
@@ -152,8 +153,9 @@ Latest validated app-process smoke coverage:
 
 Latest validated Termux clean-room full-smoke coverage:
 
-- Samsung Galaxy Fold `SM-F966N`: `build/termux-smoke-results/20260426-181111-SM_F966N`, `ALL_PASS`
-- Samsung Galaxy Flip `SM-F721N`: `build/termux-smoke-results/20260426-181111-SM_F721N`, `ALL_PASS`
+- Samsung Galaxy Fold `SM-F966N`, Android 16 / SDK 36: `build/termux-smoke-results/fold-full-reset-20260426-225908`, `ALL_PASS`
+- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `build/termux-smoke-results/flip-full-reset-20260426-231606`, `ALL_PASS`
+- Lenovo Tab `TB373FU`, Android 15 / SDK 35: `build/termux-smoke-results/lenovo-full-reset-20260426-225908`, `ALL_PASS`
 - `RUN_MEDIUM=1 RUN_HEAVY=1 RUN_PLAYWRIGHT=1 RUN_GUI=1 RESET_ROOTFS=1 scripts/termux-full-smoke-cleanroom.sh` -> `ALL_PASS`
 - basic smoke: `true`, `cat /etc/hostname`, `ls /`, `date`, `bash`, `python3 --version`, and `id`
 - medium smoke: bootstrap, filesystem/tar, Node child process, Python `posix_spawn` file actions, and `tcsetpgrp`
