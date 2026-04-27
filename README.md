@@ -13,6 +13,12 @@ Run full glibc Linux userspace — Node.js, Python, Git, Chromium — inside And
 
 A drop-in replacement for [proot](https://proot-me.github.io/) with **zero ptrace overhead**.
 
+<p align="center">
+  <a href="https://ko-fi.com/coderred">
+    <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support proroot on Ko-fi">
+  </a>
+</p>
+
 ---
 
 ## Why proroot?
