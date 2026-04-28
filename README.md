@@ -82,7 +82,7 @@ jniLibs/arm64-v8a/
 
 Download all 4 `.so` files from [Releases](../../releases) and place them in `jniLibs/arm64-v8a/`.
 
-Latest validated build: clean-room linker/runtime hardening for Android app-process and Termux workloads. It avoids exporting guest `LD_PRELOAD` into the Android host process, ships a clean-room linker with `PT_PHDR`, handles Android static-pie duplicate `argv[0]`, preserves patched-syscall errno, virtualizes `/proc/1/cgroup`, masks guest MTE HWCAP exposure, avoids unsafe glibc malloc-state writes, and passes full smoke with Node.js, Python, npm, Playwright Chromium, XFCE/VNC, OpenClaw, Codex, esbuild, and static procfs coverage.
+Latest validated build: clean-room linker/runtime hardening for Android app-process and Termux workloads. It avoids exporting guest `LD_PRELOAD` into the Android host process, ships a clean-room linker with `PT_PHDR`, handles Android static-pie duplicate `argv[0]`, preserves patched-syscall errno, keeps rootfd-relative `.`/`..` and `/proc/1/root` behavior inside the guest root, removes the fixed `DT_NEEDED` dependency cap for large libraries such as GTK4, virtualizes procfs metadata, masks guest MTE HWCAP exposure, avoids unsafe glibc malloc-state writes, and passes full smoke with Node.js, Python, npm, Playwright Chromium, XFCE/VNC, OpenClaw gateway runtime deps, Codex, esbuild, link/symlink, and static procfs coverage.
 
 ### Requirements
 
@@ -133,9 +133,8 @@ libproroot.so \
 
 Latest validated app-process smoke coverage:
 
-- Samsung Galaxy Fold `SM-F966N`, Android 16 / SDK 36: `android-smoketest/build/smoke-results/20260426-230453-SM_F966N-after-fix`, all stages `RESULT_EXIT=0`
-- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `android-smoketest/build/smoke-results/20260426-233429-SM_F721N-after-fix`, all stages `RESULT_EXIT=0`
-- Lenovo Tab `TB373FU`, Android 15 / SDK 35: `android-smoketest/build/smoke-results/20260426-230700-TB373FU-after-fix`, all stages `RESULT_EXIT=0`
+- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `android-smoketest/build/smoke-results/20260428-133618-flip`, all stages `RESULT_EXIT=0`
+- Lenovo Tab `TB373FU`, Android 15 / SDK 35: `android-smoketest/build/smoke-results/20260428-133618-lenovo`, all stages `RESULT_EXIT=0`
 
 - app-private rootfs baseline bootstrap for `curl`, `git`, `python3`, `node`, and `npm`
 - `node --version` -> `v22.22.2`
@@ -146,8 +145,10 @@ Latest validated app-process smoke coverage:
 - GUI package install smoke: `apt-get install -y xauth dbus-x11 tigervnc-standalone-server xfce4` (`GUI_INSTALL_OK`)
 - VNC/XFCE desktop startup smoke: write `/root/.vnc/xstartup`, start `vncserver :124`, and verify `xfce4-session` + `xfwm4` are alive (`GUI_VNC_SMOKE_OK`)
 - Playwright Chromium screenshot smoke: `npm install playwright`, `npx playwright install chromium`, navigate to `https://www.naver.com`, save a full-page screenshot (`PLAYWRIGHT_CHROMIUM_SCREENSHOT_OK`)
+- symlink and hardlink filesystem smoke (`PY_SYMLINK_OK`, `PY_HARDLINK_OK`)
 - `npm install openclaw`
-- `openclaw --version` -> `OpenClaw 2026.4.24 (cbcfdf6)`
+- `openclaw --version` -> `OpenClaw 2026.4.26 (be8c246)`
+- OpenClaw gateway bundled runtime deps staging and symlinked `plugin-runtime-deps` smoke
 - `npm install @openai/codex`
 - `codex --version` -> `codex-cli 0.125.0`
 - `npm install esbuild`
@@ -159,9 +160,8 @@ Latest validated app-process smoke coverage:
 
 Latest validated Termux clean-room full-smoke coverage:
 
-- Samsung Galaxy Fold `SM-F966N`, Android 16 / SDK 36: `build/termux-smoke-results/fold-full-reset-20260426-225908`, `ALL_PASS`
-- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `build/termux-smoke-results/flip-full-reset-20260426-231606`, `ALL_PASS`
-- Lenovo Tab `TB373FU`, Android 15 / SDK 35: `build/termux-smoke-results/lenovo-full-reset-20260426-225908`, `ALL_PASS`
+- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `build/termux-smoke-results/20260428-1403-flip`, `ALL_PASS`
+- Lenovo Tab `TB373FU`, Android 15 / SDK 35: `build/termux-smoke-results/20260428-1403-lenovo`, `ALL_PASS`
 - `RUN_MEDIUM=1 RUN_HEAVY=1 RUN_PLAYWRIGHT=1 RUN_GUI=1 RESET_ROOTFS=1 scripts/termux-full-smoke-cleanroom.sh` -> `ALL_PASS`
 - basic smoke: `true`, `cat /etc/hostname`, `ls /`, `date`, `bash`, `python3 --version`, and `id`
 - medium smoke: bootstrap, filesystem/tar, Node child process, Python `posix_spawn` file actions, and `tcsetpgrp`
