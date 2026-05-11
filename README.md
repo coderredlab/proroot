@@ -96,12 +96,21 @@ Latest validated build: clean-room linker/runtime hardening for Android app-proc
 libproroot.so -r <rootfs> -0 --link2symlink -w /root /bin/sh -c 'node server.js'
 ```
 
-Recommended Android app-process setup:
+The launcher auto-discovers `libproroot-runtime.so`, `libproroot-linker.so`, and `libproroot-bridge.so` from its own directory (`/proc/self/exe` dirname). Drop all four `.so` files in the same folder and call the launcher directly — no `LD_*` or `PROROOT_*_PATH` exports required.
+
+#### CLI options
+
+| Option | Description |
+|--------|-------------|
+| `-r <rootfs>` | Guest root directory (required) |
+| `-w <dir>` | Working directory inside the guest |
+| `-b <host>` / `-b <host>:<guest>` | Bind-mount a host path into the guest |
+| `-0` | Fake `uid=0` / `gid=0` (proot-compatible fakeroot) |
+| `--link2symlink` | Emulate hardlinks via anchor + symlink groups (legacy proroot compat) |
+
+Android app-process invocation:
 
 ```sh
-PROROOT_LIB_PATH=/path/to/libproroot-runtime.so \
-PROROOT_TRAMPOLINE_PATH=/path/to/libproroot-bridge.so \
-PROROOT_LINKER_PATH=/path/to/libproroot-linker.so \
 PROROOT_TMP_DIR=/data/user/0/<package>/files \
 libproroot.so \
   -r /data/user/0/<package>/files/rootfs \
@@ -115,9 +124,6 @@ libproroot.so \
 
 | Variable | Description |
 |----------|-------------|
-| `PROROOT_LIB_PATH` | Path to runtime .so (auto-detected) |
-| `PROROOT_LINKER_PATH` | Path to `libproroot-linker.so` (auto-detected) |
-| `PROROOT_TRAMPOLINE_PATH` | Path to bridge binary (auto-detected) |
 | `PROROOT_VERBOSE=1` | Debug logging |
 | `PROROOT_GUEST_EXE` | Guest path for /proc/self/exe emulation |
 | `PROROOT_TMP_DIR` | Writable directory for runtime config files (use app `filesDir` in Android app processes) |
