@@ -84,7 +84,7 @@ jniLibs/arm64-v8a/
 
 Download all 5 `.so` files from [Releases](../../releases) and place them in `jniLibs/arm64-v8a/`.
 
-Latest validated build: v1.2.5 adaptive static-loader + clean-room linker/runtime hardening for Android app-process and Termux workloads. It avoids exporting guest `LD_PRELOAD` into the Android host process, ships a clean-room linker with `PT_PHDR`, routes static-pie and dynamic `execve` through `libproroot-stub-loader.so` when it is packaged next to the launcher, preserves patched-syscall errno, keeps rootfd-relative `.`/`..` and `/proc/1/root` behavior inside the guest root, maps `/dev/fd` and stdio aliases to `/proc/self/fd`, handles `/proc/self/fd/<n>` exec paths, keeps bash/Codex shell snapshot and Node-spawned bash flows alive, virtualizes procfs metadata, translates xattr path syscalls used by `uv`, keeps fake-root D-Bus peer credentials aligned, handles 16KB-page Android devices, preserves link2symlink anchor files as regular files, remains compatible with legacy proroot link2symlink metadata, masks guest MTE HWCAP exposure, avoids unsafe glibc malloc-state writes, and passes full smoke with Node.js, Python, npm, Playwright Chromium, XFCE/VNC, OpenClaw gateway runtime deps, Codex, esbuild, uv, link/symlink, issue #3 X11 workloads, and static procfs coverage.
+Latest validated build: v1.2.6 adaptive static-loader + clean-room linker/runtime hardening for Android app-process and Termux workloads. It avoids exporting guest `LD_PRELOAD` into the Android host process, ships a clean-room linker with `PT_PHDR`, routes static-pie and dynamic `execve` through `libproroot-stub-loader.so` when it is packaged next to the launcher, preserves patched-syscall errno, keeps rootfd-relative `.`/`..` and `/proc/1/root` behavior inside the guest root, maps `/dev/fd` and stdio aliases to `/proc/self/fd`, handles `/proc/self/fd/<n>` exec paths, keeps bash/Codex shell snapshot and Node-spawned bash flows alive, virtualizes procfs metadata, translates xattr path syscalls used by `uv`, resolves `$ORIGIN` `DT_RPATH` wheel dependencies including vendored Pillow transitive libraries, keeps fake-root D-Bus peer credentials aligned, handles 16KB-page Android devices, preserves link2symlink anchor files as regular files, remains compatible with legacy proroot link2symlink metadata, masks guest MTE HWCAP exposure, avoids unsafe glibc malloc-state writes, and passes full smoke with Node.js, Python, npm, Playwright Chromium, XFCE/VNC, OpenClaw gateway runtime deps, Codex, esbuild, uv, Pillow, link/symlink, issue #3 X11 workloads, and static procfs coverage.
 
 ### Requirements
 
@@ -144,7 +144,8 @@ libproroot.so \
 
 Latest validated app-process smoke coverage:
 
-- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `android-smoketest/build/smoke-results/20260521-142107-SM_F721N-app-full-racefix`, all app stages `RESULT_EXIT=0`, issue #3 Qt/games/LibreOffice/xfce4-about pass, static-loader stages 40-45 pass, static procfs pass, and link2symlink original-preservation pass
+- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `android-smoketest/build/smoke-results/20260521-160801-flip-app-issue10`, all app stages `RESULT_EXIT=0`, issue #10 Pillow `$ORIGIN` RPATH import pass, issue #3 Qt/games/LibreOffice/xfce4-about pass, static-loader stages 40-45 pass, static procfs pass, and link2symlink original-preservation pass
+- Lenovo Tab `TB373FU`, Android 15 / SDK 35: `android-smoketest/build/smoke-results/20260521-162615-lenovo-app-issue10`, all app stages `RESULT_EXIT=0`, issue #10 Pillow `$ORIGIN` RPATH import pass, issue #3 Qt/games/LibreOffice/xfce4-about pass, static-loader stages 40-45 pass, static procfs pass, and link2symlink original-preservation pass
 
 - app-private rootfs baseline bootstrap for `curl`, `git`, `python3`, `node`, and `npm`
 - `node --version` -> `v22.22.2`
@@ -165,7 +166,7 @@ Latest validated app-process smoke coverage:
 - Codex-style bash exec, bash snapshot, and Node `execFileSync("/bin/bash", ["-lc", ...])` smoke
 - `npm install esbuild`
 - `esbuild --version` -> `0.28.0`
-- `uv sync` smoke
+- `uv sync` and Pillow `$ORIGIN` RPATH import smoke (`UV_PILLOW_RPATH_OK`)
 - `npm install playwright`
 - `npx playwright install chromium`
 - Playwright Chromium navigation and screenshot of `https://www.naver.com`
@@ -174,12 +175,12 @@ Latest validated app-process smoke coverage:
 
 Latest validated Termux clean-room full-smoke coverage:
 
-- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `build/termux-smoke-results/20260521-151005-SM_F721N-termux-full-rerun`, 38/38 cases pass, `ALL_PASS`
-- Lenovo Tab `TB373FU`, Android 15 / SDK 35: `build/termux-smoke-results/20260521-142107-TB373FU-termux-full-racefix`, 38/38 cases pass, `ALL_PASS`
+- Samsung Galaxy Flip `SM-F721N`, Android 16 / SDK 36: `build/termux-smoke-results/20260521-163220-flip-termux-issue10`, all cases pass, `ALL_PASS`
+- Lenovo Tab `TB373FU`, Android 15 / SDK 35: `build/termux-smoke-results/20260521-160801-lenovo-termux-issue10`, all cases pass, `ALL_PASS`
 - `RUN_MEDIUM=1 RUN_HEAVY=1 RUN_PLAYWRIGHT=1 RUN_GUI=1 RESET_ROOTFS=1 scripts/termux-full-smoke-cleanroom.sh` -> `ALL_PASS`
 - basic smoke: `true`, `cat /etc/hostname`, `ls /`, `date`, `bash`, `python3 --version`, and `id`
 - medium smoke: bootstrap, filesystem/tar, Node child process, Codex-style bash exec/snapshot/Node-spawned bash, Python `posix_spawn` file actions, and `tcsetpgrp`
-- heavy npm smoke: OpenClaw, OpenClaw gateway runtime deps, Codex, esbuild, and uv sync
+- heavy npm smoke: OpenClaw, OpenClaw gateway runtime deps, Codex, esbuild, uv sync, and Pillow `$ORIGIN` RPATH import
 - Playwright Chromium screenshot smoke
 - GUI smoke: XFCE package install, TigerVNC desktop startup, Mesa GPU, GLX, Qt, games, and LibreOffice
 - link2symlink original-anchor preservation smoke (`verify-original-preservation-termux`, all checks passed)
